@@ -1,12 +1,11 @@
 const express = require("express");
-const app = express();
 const admin = require("firebase-admin");
-const { sendResponse } = require("./helper/response.helper");
+const { sendResponse } = require("../helper/response.helper");
 const profile = express.Router();
 profile.post("/getProfile", async (req, res) => {
     const { user_id } = req.body;
     const profiles = [];
-    const profileResult = await admin.firestore().collection('profiles').get();
+    const profileResult = await admin.firestore().collection('profiles').where('user_id', '==', user_id).get();
     profileResult.forEach(profile => {
         const obj = {
             profile_id: profile.id,
@@ -14,9 +13,8 @@ profile.post("/getProfile", async (req, res) => {
         };
         profiles.push(obj);
     });
-    isProfileAlreadyExist = profiles.find(profile => profile.user_id === user_id);
-    if (isProfileAlreadyExist) {
-        sendResponse({ res, message: 'Profile Fetched successfully!', status: true, result: isProfileAlreadyExist });
+    if (profiles.length > 0) {
+        sendResponse({ res, message: 'Profile Fetched successfully!', status: true, result: profiles[0] });
     } else {
         sendResponse({ res, message: 'No profile found!', status: false, result: [] });
     }
