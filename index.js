@@ -7,21 +7,22 @@ const profiles = require('./api/profile');
 const customer = require('./api/customers');
 const employee = require("./api/employees");
 const service = require("./admin/services");
+const plan = require("./admin/plans");
 app.post("/", async (req, res) => {
     const { id } = req.body;
-    // const snapshot = await admin.firestore().collection('users').doc(id).get();
-    // return res.json({ id: snapshot.id, ...snapshot.data() });
-    admin
-        .auth()
-        .getUser("n6pxDwzeYqTXZgOW28C525ImKtA3")
-        .then((userRecord) => {
-            // See the UserRecord reference doc for the contents of userRecord.
-            console.log(`Successfully fetched user data: ${userRecord.toJSON()}`);
-            res.json({ userRecord });
-        })
-        .catch((error) => {
-            console.log('Error fetching user data:', error);
-        });
+    const snapshot = await admin.firestore().collection('users').doc(id).get();
+    return res.json({ id: snapshot.id, ...snapshot.data() });
+    // admin
+    //     .auth()
+    //     .getUser("n6pxDwzeYqTXZgOW28C525ImKtA3")
+    //     .then((userRecord) => {
+    //         // See the UserRecord reference doc for the contents of userRecord.
+    //         console.log(`Successfully fetched user data: ${userRecord.toJSON()}`);
+    //         res.json({ userRecord });
+    //     })
+    //     .catch((error) => {
+    //         console.log('Error fetching user data:', error);
+    //     });
 });
 
 app.post("/update-user", async (req, res) => {
@@ -35,4 +36,4 @@ exports.profile = functions.https.onRequest(profiles);
 exports.customers = functions.https.onRequest(customer);
 exports.employees = functions.https.onRequest(employee);
 exports.services = functions.https.onRequest(service);
-
+exports.plans = functions.https.onRequest(plan);
