@@ -5,6 +5,7 @@ const profile = express.Router();
 profile.post("/getProfile", async (req, res) => {
     const { user_id } = req.body;
     const profiles = [];
+    if(user_id) {
     const profileResult = await admin.firestore().collection('profiles').where('user_id', '==', user_id).get();
     profileResult.forEach(profile => {
         const obj = {
@@ -18,6 +19,7 @@ profile.post("/getProfile", async (req, res) => {
     } else {
         sendResponse({ res, message: 'No profile found!', status: false, result: [] });
     }
+}else return  sendResponse({ res, message: 'User id is missing.', status: false, result: [] });
 });
 profile.post("/addOrUpdateProfile", async (req, res) => {
     const { body } = req;
