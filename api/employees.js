@@ -138,4 +138,44 @@ employees.post("/changeEmployeePassword", async (req, res) => {
     } else return sendResponse({ res, message: "username, old password, new password and user_id is mandatory", status: false, result: [] });
 });
 
+employees.post("/updateEmployee", async (req, res) => {
+    const data = req.body;
+    const { username, user_id } = data;
+    if (username && user_id) {
+        const employeeData = await getEmployeeByUsername(username);
+        if (employeeData) {
+            //if username in the employee details and the one which is send in the request is not same then
+            // the employee is not belongs to the organization
+            if (employeeData.user_id !== user_id) return sendResponse({
+                res,
+                message: "Employee does not belongs to you. You can only change your employee data.",
+                status: false,
+                result: []
+            });
+            const emp = await employeeRef.doc(username).update(data);
+            return sendResponse({ res, message: "Employee updated successfully.", result: emp, status: true });
+        } else return sendResponse({ res, status: false, message: "employee not found, make sure you pass the correct username", result: [] });
+    } else return sendResponse({ res, message: "username and user_id is mandatory", status: false, result: [] });
+});
+
+employees.post("/deactivateEmployee", async (req, res) => {
+    const data = req.body;
+    const { username, user_id } = data;
+    if (username && user_id) {
+        const employeeData = await getEmployeeByUsername(username);
+        if (employeeData) {
+            //if username in the employee details and the one which is send in the request is not same then
+            // the employee is not belongs to the organization
+            if (employeeData.user_id !== user_id) return sendResponse({
+                res,
+                message: "Employee does not belongs to you. You can only change your employee data.",
+                status: false,
+                result: []
+            });
+            const emp = await employeeRef.doc(username).update({ status: false });
+            return sendResponse({ res, message: "Employee deactivated successfully.", result: emp, status: true });
+        } else return sendResponse({ res, status: false, message: "employee not found, make sure you pass the correct username", result: [] });
+    } else return sendResponse({ res, message: "username and user_id is mandatory", status: false, result: [] });
+});
+
 module.exports = employees;
