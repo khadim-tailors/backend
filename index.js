@@ -27,6 +27,16 @@ app.post("/createNewUser", async (req, res) => {
           disabled: userRecord.disabled,
           creationTime: moment(userRecord.metadata.creationTime).format("DD-MMM-YYYY HH:mm:ss"),
           phone: userRecord.phone,
+          plan:{
+            name:'Free',
+            order_used:0,
+            end_date:moment().add(1, 'M').format('DD-MM-YYYY HH:mm:ss'),
+            star_date:moment().format("DD-MM-YYYY HH:mm:ss"),
+            order_left:10,
+            total_order_count:10,
+            order_used:0
+        
+          }
         };
         if (!user.email) delete user.email;
         if (!user.phone) delete user.phone;

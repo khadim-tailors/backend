@@ -4,8 +4,11 @@ const admin = require("firebase-admin");
 const { sendResponse } = require("../helper/response.helper");
 const employeeRef = admin.firestore().collection("employees");
 const bcrypt = require('bcrypt');
+const cors = require("cors");
+employees.use(cors({ origin: true }));
 const { getUserWithUserId, getEmployeeByUsername } = require("../helper/helper");
 const saltRounds = 2;
+
 employees.post("/getAllEmployees", async (req, res) => {
     const { user_id } = req.body;
     try {

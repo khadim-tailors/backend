@@ -3,6 +3,8 @@ const services = express.Router();
 const admin = require("firebase-admin");
 const { sendResponse } = require("../helper/response.helper");
 const servicesRef = admin.firestore().collection("services");
+const cors = require("cors");
+services.use(cors({ origin: true }))
 
 services.post("/addService", async (req, res) => {
   const data = req.body;

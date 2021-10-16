@@ -3,6 +3,8 @@ const plans = express.Router();
 const admin = require("firebase-admin");
 const { sendResponse } = require("../helper/response.helper");
 const plansRef = admin.firestore().collection("plans");
+const cors = require("cors");
+plans.use(cors({ origin: true }))
 
 plans.post("/addNewPlan", async (req, res) => {
   const data = req.body;
@@ -17,7 +19,7 @@ plans.post("/addNewPlan", async (req, res) => {
 plans.get("/fetchPlans", async (req, res) => {
   try {
     const allPlans = [];
-    const plansSnapshot = await plansRef.get();
+    const plansSnapshot = await plansRef.orderBy("price", "asc").get();
     plansSnapshot.forEach(doc => {
       allPlans.push({ plan_id: doc.id, ...doc.data() });
     });

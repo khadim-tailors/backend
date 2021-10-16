@@ -2,6 +2,9 @@ const express = require("express");
 const admin = require("firebase-admin");
 const { sendResponse } = require("../helper/response.helper");
 const profile = express.Router();
+const cors = require("cors");
+profile.use(cors({ origin: true }));
+
 profile.post("/getProfile", async (req, res) => {
     const { user_id } = req.body;
     const profiles = [];

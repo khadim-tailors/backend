@@ -3,7 +3,8 @@ const customer = express.Router();
 const admin = require("firebase-admin");
 const { sendResponse } = require("../helper/response.helper");
 const customerRef = admin.firestore().collection('customers');
-
+const cors = require("cors");
+customer.use(cors({ origin: true }));
 
 async function getSubcollectionData(subcollectionName, docId) {
     const allMeasurements = [];
@@ -113,5 +114,6 @@ customer.post("/updateCustomer", async (req, res) => {
         return sendResponse({ res, message: error.message ? error.message : "Customer update failed.", status: false, result: [] });
     }
 });
+
 
 module.exports = customer;
