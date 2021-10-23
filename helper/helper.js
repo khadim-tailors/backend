@@ -13,3 +13,10 @@ module.exports.getEmployeeByUsername = async (username) => {
     if (employee.exists) return { employee_id: employee.id, ...employee.data() };
     else return false;
 };
+
+module.exports.isUserIdValid = async (user_id) => {
+    if (!user_id) return false;
+    const userSnapshot = await userRef.doc(user_id).get();
+    return userSnapshot.exists;
+
+};

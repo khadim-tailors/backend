@@ -3,52 +3,47 @@ const admin = require("firebase-admin");
 const { sendResponse } = require("../helper/response.helper");
 const profile = express.Router();
 const cors = require("cors");
+const { isUserIdValid } = require("../helper/helper");
 profile.use(cors({ origin: true }));
+const profileRef = admin.firestore().collection("profiles");
+const userRef = admin.firestore().collection("users");
 
 profile.post("/getProfile", async (req, res) => {
-    const { user_id } = req.body;
-    const profiles = [];
-    if(user_id) {
-    const profileResult = await admin.firestore().collection('profiles').where('user_id', '==', user_id).get();
+  const { user_id } = req.body;
+  const profiles = [];
+  if (user_id) {
+    const profileResult = await profileRef.where('user_id', '==', user_id).get();
     profileResult.forEach(profile => {
-        const obj = {
-            profile_id: profile.id,
-            ...profile.data()
-        };
-        profiles.push(obj);
+      const obj = {
+        profile_id: profile.id,
+        ...profile.data()
+      };
+      profiles.push(obj);
     });
     if (profiles.length > 0) {
-        sendResponse({ res, message: 'Profile Fetched successfully!', status: true, result: profiles[0] });
+      sendResponse({ res, message: 'Profile Fetched successfully!', status: true, result: profiles[0] });
     } else {
-        sendResponse({ res, message: 'No profile found!', status: false, result: [] });
+      sendResponse({ res, message: 'No profile found!', status: false, result: [] });
     }
-}else return  sendResponse({ res, message: 'User id is missing.', status: false, result: [] });
+  } else return sendResponse({ res, message: 'User id is missing.', status: false, result: [] });
 });
 profile.post("/addOrUpdateProfile", async (req, res) => {
-    const { body } = req;
-    const { user_id } = body;
-    const profiles = [];
-    const profileResult = await admin.firestore().collection('profiles').get();
-    profileResult.forEach(profile => {
-        const obj = {
-            profile_id: profile.id,
-            ...profile.data()
-        };
-        profiles.push(obj);
-    });
-    isProfileAlreadyExist = profiles.find(profile => profile.user_id === user_id);
-    if (isProfileAlreadyExist) {
-        admin.firestore().collection('profiles').doc(isProfileAlreadyExist.profile_id).update(body)
-            .then(response => {
-                sendResponse({ res, message: 'Profile Updated successfully!', status: true, result: [] });
-            })
-            .catch(error => {
-                sendResponse({ res, message: 'Profile Updated failed!', status: false, result: error });
-            });
+  const { body } = req;
+  const { user_id } = body;
+  try {
+    if (!isUserIdValid(user_id)) return sendResponse({ res, message: "Invalid User id", result: [], status: false });
+    const profileSnapshot = await profileRef.doc(user_id).get();
+    if (profileSnapshot.exists) {
+      const updatedProfile = await profileRef.doc(user_id).update(body);
+      return sendResponse({ res, message: "Profile updated successfully.", result: updatedProfile, status: true });
     } else {
-        const profileDetails = await admin.firestore().collection('profiles').add(body);
-        res.json(profileDetails);
+      const addProfile = await profileRef.doc(user_id).set(req.body);
+      const users = await userRef.doc(user_id).update({ is_profile_filled: true });
+      return sendResponse({ res, message: "Profile added successfully.", status: true, result: { addProfile, ...users } });
     }
+  } catch (err) {
+    return sendResponse({ res, message: err.message ? err.message : "Profile add/update failed.", status: false, result: [] });
+  }
 });
 
 
