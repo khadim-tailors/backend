@@ -46,11 +46,13 @@ shops.post("/updateShop", async (req, res) => {
   }
 });
 
-shops.post("/deactivateShop", async (req, res) => {
+shops.post("/toggleShop", async (req, res) => {
   const { shop_id } = req.body;
   try {
     if (shop_id) {
-      const shop = await shopRef.doc(shop_id).update({ status: false });
+      let shopDetails = await shopRef.doc(shop_id).get();
+      shopDetails = {shop_id:shopDetails.id, ...shopDetails.data()}
+      const shop = await shopRef.doc(shop_id).update({ status: !shopDetails.status });
       return sendResponse({ res, message: "Shop deactivated successfully.", result: shop, status: true });
     } else return sendResponse({ res, message: "Invalid shop id passed.", result: [], status: false });
   } catch (error) {
