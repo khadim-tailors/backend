@@ -6,6 +6,20 @@ const servicesRef = admin.firestore().collection("services");
 const cors = require("cors");
 services.use(cors({ origin: true }))
 
+
+services.get("/getAllServices", async (req, res) => {
+  try{
+    const services = [];
+    const serviceSnapShot = await servicesRef.get();
+    serviceSnapShot.forEach((service) => {
+      services.push({service_id: service.id, ...service.data()})
+    })
+    sendResponse({ res, message:"Services fetched successfully", result:services, status:true})
+  }catch(err){
+    sendResponse({ res, message:err.message, result:[], status:false})
+    console.log(err)
+  }
+})
 services.post("/addService", async (req, res) => {
   const data = req.body;
   try {

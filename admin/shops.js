@@ -60,4 +60,17 @@ shops.post("/toggleShop", async (req, res) => {
   }
 });
 
+shops.post("/getShopById", async(req,res)=>{
+  const { shop_id } = req.body;
+  try {
+    if (shop_id) {
+      let shopDetails = await shopRef.doc(shop_id).get();
+      shopDetails = {shop_id:shopDetails.id, ...shopDetails.data()}
+      return sendResponse({ res, message: "Shop fetched successfully.", result: shopDetails, status: true });
+    } else return sendResponse({ res, message: "Invalid shop id passed.", result: [], status: false });
+  } catch (error) {
+    sendResponse({ res, message: error.message ? error.message : "Invalid shop id passed.", result: [], status: false });
+  }
+})
+
 module.exports = shops;

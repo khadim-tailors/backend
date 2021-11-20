@@ -33,6 +33,17 @@ profile.post("/addOrUpdateProfile", async (req, res) => {
   try {
     if (!isUserIdValid(user_id)) return sendResponse({ res, message: "Invalid User id", result: [], status: false });
     const profileSnapshot = await profileRef.doc(user_id).get();
+    let extraDetails = {};
+    if(body.address) extraDetails.address = body.address
+    if(body.city) extraDetails.city = body.city
+    if(body.state) extraDetails.state = body.state
+    if(body.lat) extraDetails.lat = body.lat
+    if(body.long) extraDetails.long = body.long
+    if(body.first_name) extraDetails.first_name = body.first_name
+    if(body.last_name) extraDetails.last_name = body.last_name
+    if(body.phone) extraDetails.phone = body.phone
+    if(body.phone_num) extraDetails.phone_num = body.phone_num
+    const users = await userRef.doc(user_id).set({...extraDetails}, {merge:true});
     if (profileSnapshot.exists) {
       const updatedProfile = await profileRef.doc(user_id).update(body);
       return sendResponse({ res, message: "Profile updated successfully.", result: updatedProfile, status: true });

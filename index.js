@@ -9,6 +9,7 @@ const plan = require("./admin/plans");
 const shop = require("./admin/shops");
 const dashboard = require("./admin/dashboard");
 const user = require("./api/users");
+const gallery = require("./admin/gallery");
 
 exports.users = functions.https.onRequest(user);
 exports.profile = functions.https.onRequest(profiles);
@@ -18,3 +19,4 @@ exports.services = functions.https.onRequest(service);
 exports.plans = functions.https.onRequest(plan);
 exports.dashboards = functions.https.onRequest(dashboard);
 exports.shops = functions.https.onRequest(shop);
+exports.gallery = functions.https.onRequest(gallery);

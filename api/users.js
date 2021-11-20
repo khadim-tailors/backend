@@ -1,11 +1,12 @@
 const express = require('express');
 const users = express.Router();
-const cors = require('cors');
 const admin = require("firebase-admin");
 const moment = require("moment");
-users.use(cors({ origin: true }));
 const { sendResponse } = require("../helper/response.helper");
 const usersRef = admin.firestore().collection('users');
+const profileRef = admin.firestore().collection('profiles');
+const cors = require('cors');
+users.use(cors({ origin: true }));
 
 users.post("/createNewUser", async (req, res) => {
   const { user_id } = req.body;
@@ -75,10 +76,26 @@ users.get("/getAllUsers", async (req, res) => {
     const users = await usersRef.get();
     users.forEach(user => {
       allUsers.push({ user_id: user.id, ...user.data() });
-      return sendResponse({ res, message: "Users fetched successfully.", status: true, result: allUsers });
     });
+    return sendResponse({ res, message: "Users fetched successfully.", status: true, result: allUsers });
   } catch (err) {
     return sendResponse({ res, message: "Users fetch failed.", status: false, result: [] });
+  }
+});
+
+users.get("/getAllUsersForAdmin", async (req, res) => {
+  try {
+    const allUsers = [];
+    const usersWithRequiredData = []
+    const users = await usersRef.get();
+    users.forEach(user => {
+      const data = {...user.data()}
+      const { first_name, last_name, email, phone, address, city, state } = data
+      allUsers.push({ user_id: user.id, first_name, last_name, email, phone, address, city, state, plan: data.plan.name });
+    });
+    return sendResponse({ res, message: "Users fetched successfully.", status: true, result: allUsers });
+  } catch (err) {
+    return sendResponse({ res, message: err.message || "Users fetch failed.", status: false, result: [] });
   }
 });
 
